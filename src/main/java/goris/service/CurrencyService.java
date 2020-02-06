@@ -42,8 +42,6 @@ public class CurrencyService {
             currencyRateDao.setCurrentSession(session);
             CurrencyRate currencyRate = currencyRateDao.find(baseCurrency, dstCurrency);
             return baseAmount.multiply(currencyRate.getRate()).setScale(2, RoundingMode.DOWN);
-        } catch (Exception ex) {
-            throw ex;
         }
     }
 

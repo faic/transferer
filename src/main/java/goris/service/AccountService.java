@@ -2,6 +2,7 @@ package goris.service;
 
 import goris.dao.AccountHibernateDao;
 import goris.model.Account;
+import goris.model.AccountException;
 import goris.model.Currency;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -24,12 +25,11 @@ public class AccountService {
         this.sessionFactory = sessionFactory;
     }
 
-    public Optional<Account> getAccount(UUID externalId) {
+    public Account getAccount(UUID externalId) {
         try (Session session = sessionFactory.openSession()) {
             accountDao.setCurrentSession(session);
-            return Optional.ofNullable(accountDao.find(externalId));
-        } catch (Exception ex) {
-            throw ex;
+            return Optional.ofNullable(accountDao.find(externalId))
+                    .orElseThrow(() -> new AccountException("No account with such id"));
         }
     }
 
@@ -52,7 +52,7 @@ public class AccountService {
     }
 
     public Account updateAccount(UUID externalId, BigDecimal amount) {
-        Account account = getAccount(externalId).get();
+        Account account = getAccount(externalId);
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();

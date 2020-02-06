@@ -25,7 +25,7 @@ public class AccountResource {
     @GET
     @Path("/{id}")
     public Response getAccount(@PathParam("id") String id) {
-        Account account = accountService.getAccount(UUID.fromString(id)).get();
+        Account account = accountService.getAccount(UUID.fromString(id));
         AccountDto accountDto = new AccountDto(
                 account.getExternalId().toString(),
                 account.getAmount().toPlainString(),

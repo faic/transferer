@@ -23,7 +23,7 @@ public class TransferResource {
     @GET
     @Path("/{id}")
     public Response getTransfer(@PathParam("id") String id) {
-        Transfer transfer = transferService.getTransfer(UUID.fromString(id)).get();
+        Transfer transfer = transferService.getTransfer(UUID.fromString(id));
         TransferDto transferDto = new TransferDto(
                 transfer.getExternalId().toString(),
                 transfer.getAccountFrom().getExternalId().toString(),
@@ -52,7 +52,6 @@ public class TransferResource {
                 transfer.getDstAmount().toPlainString(),
                 transfer.getAccountTo().getCurrency().name()
         );
-
         return Response.status(200).entity(transferDto).build();
     }
 }

@@ -4,6 +4,7 @@ import goris.dao.AccountHibernateDao;
 import goris.dao.TransferHibernateDao;
 import goris.model.Account;
 import goris.model.Transfer;
+import goris.model.TransferException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -35,61 +36,52 @@ public class TransferService {
         this.accountService = accountService;
     }
 
-    public Optional<Transfer> getTransfer(UUID externalId) {
+    public Transfer getTransfer(UUID externalId) {
         try (Session session = sessionFactory.openSession()) {
             transferDao.setCurrentSession(session);
-            return Optional.ofNullable(transferDao.find(externalId));
-        } catch (Exception ex) {
-            throw ex;
+            return Optional.ofNullable(transferDao.find(externalId))
+                    .orElseThrow(() -> new TransferException("No transfer with such id"));
         }
     }
 
     public Transfer transfer(UUID from, UUID to, BigDecimal amount) {
         if (from.equals(to)) {
-            throw new IllegalArgumentException("From equal to to");
+            throw new TransferException("Both accounts has equal ids - no action required");
         }
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Illegal amount");
+            throw new TransferException("Amount is not greater than zero");
         }
-        Optional<Account> accFrom = accountService.getAccount(from);
-        if (!accFrom.isPresent()) {
-            throw new IllegalArgumentException("No such from account");
-        }
-        Optional<Account> accTo = accountService.getAccount(to);
-        if (!accTo.isPresent()) {
-            throw new IllegalArgumentException("No such to account");
-        }
+        Account accFrom = accountService.getAccount(from);
+        Account accTo = accountService.getAccount(to);
         BigDecimal baseAmount = amount.setScale(2, RoundingMode.DOWN);
         BigDecimal dstAmount = currencyService.getAmount(
                 baseAmount,
-                accFrom.get().getCurrency(),
-                accTo.get().getCurrency());
+                accFrom.getCurrency(),
+                accTo.getCurrency());
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             accountDao.setCurrentSession(session);
             accountDao.setCurrentTransaction(transaction);
-            Account accountFrom;
-            Account accountTo;
-            if (accFrom.get().getId() < accTo.get().getId()) {
-                accountFrom = accountDao.getAccountForUpdate(accFrom.get().getId());
-                accountTo = accountDao.getAccountForUpdate(accTo.get().getId());
+            if (accFrom.getId() < accTo.getId()) {
+                accFrom = accountDao.getAccountForUpdate(accFrom.getId());
+                accTo = accountDao.getAccountForUpdate(accTo.getId());
             } else {
-                accountTo = accountDao.getAccountForUpdate(accTo.get().getId());
-                accountFrom = accountDao.getAccountForUpdate(accFrom.get().getId());
+                accTo = accountDao.getAccountForUpdate(accTo.getId());
+                accFrom = accountDao.getAccountForUpdate(accFrom.getId());
             }
 
-            if (accountFrom.getAmount().compareTo(baseAmount) < 0) {
-                throw new IllegalArgumentException("Illegal amount");
+            if (accFrom.getAmount().compareTo(baseAmount) < 0) {
+                throw new TransferException("Amount is greater than 'from' account current balance");
             }
-            accountFrom.setAmount(accountFrom.getAmount().subtract(baseAmount));
-            accountTo.setAmount(accountTo.getAmount().add(dstAmount));
-            accountDao.update(accountFrom);
-            accountDao.update(accountTo);
+            accFrom.setAmount(accFrom.getAmount().subtract(baseAmount));
+            accTo.setAmount(accTo.getAmount().add(dstAmount));
+            accountDao.update(accFrom);
+            accountDao.update(accTo);
             Transfer transfer = new Transfer(
                     UUID.randomUUID(),
-                    accountFrom,
-                    accountTo,
+                    accFrom,
+                    accTo,
                     baseAmount,
                     dstAmount);
             transferDao.setCurrentSession(session);

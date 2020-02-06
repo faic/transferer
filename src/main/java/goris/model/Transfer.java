@@ -10,6 +10,7 @@ public class Transfer {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
+    @Column(name="external_id")
     private UUID externalId;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="account_from", nullable = false)
@@ -17,7 +18,9 @@ public class Transfer {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="account_to", nullable = false)
     private Account accountTo;
+    @Column(name="base_amount")
     private BigDecimal baseAmount;
+    @Column(name="dst_amount")
     private BigDecimal dstAmount;
 
     public Transfer() {
