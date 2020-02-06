@@ -3,8 +3,7 @@ package goris;
 import goris.dao.AccountHibernateDao;
 import goris.dao.CurrencyRateHibernateDao;
 import goris.dao.TransferHibernateDao;
-import goris.rest.AccountResource;
-import goris.rest.TransferResource;
+import goris.rest.*;
 import goris.service.AccountService;
 import goris.service.CurrencyService;
 import goris.service.TransferService;
@@ -44,7 +43,11 @@ public class Main {
         handler.addServlet(
                 new ServletHolder(new ServletContainer(new ResourceConfig()
                         .register(new AccountResource(accountService))
-                        .register(new TransferResource(transferService)))), "/*");
+                        .register(new TransferResource(transferService))
+                        .register(GenericExceptionMapper.class)
+                        .register(AccountExceptionMapper.class)
+                        .register(TransferExceptionMapper.class)
+                )), "/*");
         server.start();
         server.join();
     }
