@@ -14,13 +14,20 @@ public class CurrencyService {
     private final CurrencyRateHibernateDao currencyRateDao;
     private final SessionFactory sessionFactory;
 
+    public final static BigDecimal RUB_USD = BigDecimal.valueOf(0.0166);
+    public final static BigDecimal RUB_EUR = BigDecimal.valueOf(0.0141);
+    public final static BigDecimal USD_RUB = BigDecimal.valueOf(60.63);
+    public final static BigDecimal USD_EUR = BigDecimal.valueOf(0.86);
+    public final static BigDecimal EUR_USD = BigDecimal.valueOf(1.15);
+    public final static BigDecimal EUR_RUB = BigDecimal.valueOf(70.11);
+
     private final static CurrencyRate[] INIT_RATES = {
-            new CurrencyRate(Currency.RUB, Currency.USD, BigDecimal.valueOf(0.0166)),
-            new CurrencyRate(Currency.RUB, Currency.EUR, BigDecimal.valueOf(0.0141)),
-            new CurrencyRate(Currency.USD, Currency.RUB, BigDecimal.valueOf(60.63)),
-            new CurrencyRate(Currency.USD, Currency.EUR, BigDecimal.valueOf(0.86)),
-            new CurrencyRate(Currency.EUR, Currency.USD, BigDecimal.valueOf(1.15)),
-            new CurrencyRate(Currency.EUR, Currency.RUB, BigDecimal.valueOf(70.11))
+            new CurrencyRate(Currency.RUB, Currency.USD, RUB_USD),
+            new CurrencyRate(Currency.RUB, Currency.EUR, RUB_EUR),
+            new CurrencyRate(Currency.USD, Currency.RUB, USD_RUB),
+            new CurrencyRate(Currency.USD, Currency.EUR, USD_EUR),
+            new CurrencyRate(Currency.EUR, Currency.USD, EUR_USD),
+            new CurrencyRate(Currency.EUR, Currency.RUB, EUR_RUB)
     };
 
     public CurrencyService(CurrencyRateHibernateDao currencyRateDao, SessionFactory sessionFactory) {

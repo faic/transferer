@@ -13,6 +13,7 @@ public class CurrencyRate {
     private Currency base;
     @Enumerated(EnumType.STRING)
     private Currency dst;
+    @Column(name = "PRICE", precision = 16, scale = 4)
     private BigDecimal rate;
 
     public CurrencyRate() {

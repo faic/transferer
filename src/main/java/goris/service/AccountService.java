@@ -34,6 +34,9 @@ public class AccountService {
     }
 
     public Account saveAccount(BigDecimal amount, Currency currency) {
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new AccountException("Amount is less than zero");
+        }
         Account account = new Account(UUID.randomUUID(), amount.setScale(2, RoundingMode.DOWN), currency);
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
@@ -52,6 +55,9 @@ public class AccountService {
     }
 
     public Account updateAccount(UUID externalId, BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new AccountException("Amount is less than zero");
+        }
         Account account = getAccount(externalId);
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {

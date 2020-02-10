@@ -72,7 +72,7 @@ public class TransferService {
             }
 
             if (accFrom.getAmount().compareTo(baseAmount) < 0) {
-                throw new TransferException("Amount is greater than 'from' account current balance");
+                throw new TransferException("Illegal amount");
             }
             accFrom.setAmount(accFrom.getAmount().subtract(baseAmount));
             accTo.setAmount(accTo.getAmount().add(dstAmount));
@@ -89,6 +89,8 @@ public class TransferService {
             transferDao.save(transfer);
             transaction.commit();
             return transfer;
+        } catch (TransferException ex) {
+            throw ex;
         } catch (RuntimeException e) {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();

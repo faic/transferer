@@ -12,10 +12,10 @@ public class Transfer {
     private long id;
     @Column(name="external_id")
     private UUID externalId;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="account_from", nullable = false)
     private Account accountFrom;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="account_to", nullable = false)
     private Account accountTo;
     @Column(name="base_amount")
